@@ -1,5 +1,5 @@
 <template>
   <div>
-    <hoge />
+    <MessageWindow />
   </div>
 </template>

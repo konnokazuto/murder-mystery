@@ -1,6 +1,7 @@
 <template>
-  <div v-if="scenarios.data">
-    <p>{{ currentDialogue.speaker }}「{{ currentDialogue.text }}」</p>
+  <div v-if="data">
+    <img :src="generateImgPath(currentDialogue.face)" />
+    <p>{{ currentDialogue.speaker }}「{{ animatedText }}」</p>
     <button
       v-if="
         !currentScenario.choices ||
@@ -24,17 +25,36 @@
 </template>
 
 <script setup>
-const { data } = await useFetch("/api/hello");
+const { data } = await useFetch("/api/scenarios");
 console.log(data);
 let currentScenarioId = ref(1);
 let currentScenario = computed(() =>
-  scenarios.value?.find((scenario) => scenario.id === currentScenarioId.value)
+  data.value?.find((scenario) => scenario.id === currentScenarioId.value)
 );
 let dialogueIndex = ref(0);
 let currentDialogue = computed(
   () => currentScenario.value?.dialogues[dialogueIndex.value]
 );
+let animatedText = ref("");
 
+watch(
+  currentDialogue,
+  async (newDialogue) => {
+    animatedText.value = "";
+    for (const char of newDialogue.text) {
+      animatedText.value += char;
+      await new Promise((resolve) => setTimeout(resolve, 50)); // 調節可能な遅延
+    }
+  },
+  { immediate: true }
+);
+
+onMounted(() => {
+  nextDialogue();
+});
+const generateImgPath = (fileName) => {
+  return new URL(`../assets/face/${fileName}.png`, import.meta.url).href;
+};
 const nextDialogue = () => {
   if (
     currentScenario.value &&
