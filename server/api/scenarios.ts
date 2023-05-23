@@ -29,7 +29,7 @@ export default defineEventHandler((event) => {
     {
       id: 2,
       dialogues: [
-        { speaker: "女", text: "何かしら？", face: "enmadaiou" },
+        { speaker: "女", text: "何かしら？", face: "mama" },
         {
           speaker: "女",
           text: "早くケーキを食べて祝いましょうよ。",
@@ -38,9 +38,9 @@ export default defineEventHandler((event) => {
         {
           speaker: "男",
           text: "いやこれは何か嫌な予感がする",
-          face: "enmadaiou",
+          face: "mama",
         },
-        { speaker: "女", text: "ねぇほら早く", face: "enmadaiou" },
+        { speaker: "女", text: "ねぇほら早く", face: "mama" },
       ] as Dialogues[],
       choices: [
         { text: "食べる", nextId: 2 },

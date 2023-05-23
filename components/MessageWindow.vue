@@ -1,6 +1,6 @@
 <template>
   <div v-if="data">
-    <img :src="generateImgPath(currentDialogue.face)" />
+    <FaceImage :face="currentDialogue.face" />
     <p>{{ currentDialogue.speaker }}「{{ animatedText }}」</p>
     <button
       v-if="
@@ -26,7 +26,6 @@
 
 <script setup>
 const { data } = await useFetch("/api/scenarios");
-console.log(data);
 let currentScenarioId = ref(1);
 let currentScenario = computed(() =>
   data.value?.find((scenario) => scenario.id === currentScenarioId.value)
@@ -36,15 +35,28 @@ let currentDialogue = computed(
   () => currentScenario.value?.dialogues[dialogueIndex.value]
 );
 let animatedText = ref("");
+let animationTimeouts = [];
 
 watch(
   currentDialogue,
-  async (newDialogue) => {
-    animatedText.value = "";
-    for (const char of newDialogue.text) {
-      animatedText.value += char;
-      await new Promise((resolve) => setTimeout(resolve, 50)); // 調節可能な遅延
+  (newDialogue) => {
+    // 全ての既存のタイムアウトをキャンセルします
+    for (const timeout of animationTimeouts) {
+      clearTimeout(timeout);
     }
+    animationTimeouts = [];
+    animatedText.value = "";
+    let i = 0;
+    const animateText = () => {
+      if (i < newDialogue.text.length) {
+        animatedText.value += newDialogue.text[i];
+        i++;
+        // 新しいタイムアウトをスケジュールし、そのIDを保存します
+        const timeout = setTimeout(animateText, 50); // 調節可能な遅延
+        animationTimeouts.push(timeout);
+      }
+    };
+    animateText();
   },
   { immediate: true }
 );
